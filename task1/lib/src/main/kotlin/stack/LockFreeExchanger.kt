@@ -25,16 +25,17 @@ internal class LockFreeExchanger<T> {
     private val slot = AtomicReference<ExchangeState<T>>(Empty)
 
     fun exchange(myItem: T, timeout: Duration): Result<T, TimeoutError> {
-        val timeBound = System.nanoTime() + timeout.toLong(DurationUnit.NANOSECONDS)
+        val timeoutNano = timeout.toLong(DurationUnit.NANOSECONDS)
+        val startTimeNano = System.nanoTime()
 
         while (true) {
-            if (System.nanoTime() > timeBound) return Err(TimeoutError)
+            if (System.nanoTime() - startTimeNano >= timeoutNano) return Err(TimeoutError)
 
-            when (val yrItem = slot.get()) {
+            when (val state = slot.get()) {
                 Empty -> {
-                    if (!slot.compareAndSet(yrItem, Waiting(myItem))) continue
+                    if (!slot.compareAndSet(state, Waiting(myItem))) continue
 
-                    while (System.nanoTime() < timeBound) {
+                    while (System.nanoTime() - startTimeNano < timeoutNano) {
                         slot.get().runBusy {
                             slot.set(Empty)
                             return Ok(it)
@@ -50,8 +51,8 @@ internal class LockFreeExchanger<T> {
                     }
                 }
 
-                is Waiting -> if (slot.compareAndSet(yrItem, Busy(myItem)))
-                    return Ok(yrItem.value)
+                is Waiting -> if (slot.compareAndSet(state, Busy(myItem)))
+                    return Ok(state.value)
 
                 is Busy -> {}
             }

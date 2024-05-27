@@ -21,9 +21,7 @@ internal class CASStack<T> {
         else Err(CASFailure)
     }
 
-    class Node<T>(val value: T) {
-        var next: Node<T>? = null
-    }
+    class Node<T>(val value: T, var next: Node<T>? = null)
 
     object CASFailure
 }
