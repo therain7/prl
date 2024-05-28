@@ -20,7 +20,7 @@ running `macOS Sonoma 14.5, Azul Zulu Java 21.0.3, Kotlin 1.9.23`.
 To assess performance the following testing was performed:
 - Stack was initially filled with `2 000 000` elements.
 - Multiple threads were started and each performed `1 000 000` stack operations.
-- Total time to perform all operations by all threads was measured.
+- Total time to perform all operations by all threads was measured. The average of 5 runs was taken.
 
 ### 100% push
 

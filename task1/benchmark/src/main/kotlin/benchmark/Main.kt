@@ -44,6 +44,8 @@ fun bench(stack: Stack<Int>, threadsCount: Int, opsCount: Int, pushProbability: 
 
 
 fun main() {
+    val runs = 5
+
     val threadsCount = listOf(4, 8, 16, 32)
     val pushProbability = 0.5
     val initElementsCount = 2_000_000
@@ -71,18 +73,26 @@ fun main() {
     val expStackTimes = mutableListOf<Int>()
     val elimStackTimes = mutableListOf<Int>()
 
-    threadsCount.forEach {
+    threadsCount.forEach { threads ->
         lockfreeTimes.addLast(
-            bench(setupLockfreeStack(), it, opsCount, pushProbability)
-                .toInt(DurationUnit.MILLISECONDS)
+            List(runs) {
+                bench(setupLockfreeStack(), threads, opsCount, pushProbability)
+                    .toInt(DurationUnit.MILLISECONDS)
+            }.average().toInt()
         )
+
         expStackTimes.addLast(
-            bench(setupExpStack(), it, opsCount, pushProbability)
-                .toInt(DurationUnit.MILLISECONDS)
+            List(runs) {
+                bench(setupExpStack(), threads, opsCount, pushProbability)
+                    .toInt(DurationUnit.MILLISECONDS)
+            }.average().toInt()
         )
+
         elimStackTimes.addLast(
-            bench(setupElimStack(it / 2), it, opsCount, pushProbability)
-                .toInt(DurationUnit.MILLISECONDS)
+            List(runs) {
+                bench(setupElimStack(threads / 2), threads, opsCount, pushProbability)
+                    .toInt(DurationUnit.MILLISECONDS)
+            }.average().toInt()
         )
     }
 
