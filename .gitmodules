@@ -1,0 +1,3 @@
+[submodule "task2/MultithreadedDNSResolver"]
+	path = task2/MultithreadedDNSResolver
+	url = git@github.com:stefanKnott/MultithreadedDNSResolver.git
